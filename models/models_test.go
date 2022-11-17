@@ -179,3 +179,98 @@ func TestCross(t *testing.T) {
 	}
 
 }
+
+func TestNewColor(t *testing.T) {
+	r, g, b := -0.5, 0.4, 1.7
+	c := NewColor(r, g, b)
+
+	if c.red != r || c.green != g || c.blue != b {
+		t.Errorf("Got %v, expected %f, %f, %f", c, r, g, b)
+	}
+}
+
+func TestColorEquals(t *testing.T) {
+	var tests = []struct {
+		c1, c2 Color
+		want   bool
+	}{
+		{NewColor(1, 2, 3), NewColor(1, 2, 3), true},
+		{NewColor(1, 2, 3), NewColor(1, 2, 5), false},
+		{NewColor(1, 2, 3), NewColor(1, 1, 3), false},
+		{NewColor(1, 2, 3), NewColor(3, 2, 3), false},
+		{NewColor(1, 2, 3), NewColor(1, 2, -3), false},
+	}
+
+	for _, tt := range tests {
+
+		testname := fmt.Sprintf("%v", tt)
+		t.Run(testname, func(t *testing.T) {
+			ans := tt.c1.Equals(tt.c2)
+			if ans != tt.want {
+				t.Errorf("Got %v, wanted %v", ans, tt.want)
+			}
+		})
+
+	}
+
+}
+
+func TestAddColors(t *testing.T) {
+	c := NewColor(0.9, 0.6, 0.75)
+	c2 := NewColor(0.7, 0.1, 0.25)
+
+	want := NewColor(1.6, 0.7, 1.0)
+	res := c.Add(c2)
+
+	if !res.Equals(want) {
+		t.Errorf("Got %v, expected %v", res, want)
+	}
+}
+
+func TestSubColors(t *testing.T) {
+	c := NewColor(0.9, 0.6, 0.75)
+	c2 := NewColor(0.7, 0.1, 0.25)
+
+	want := NewColor(0.2, 0.5, 0.5)
+	res := c.Sub(c2)
+
+	if !res.Equals(want) {
+		t.Errorf("Got %v, expected %v", res, want)
+	}
+}
+
+func TestColorTimesScalar(t *testing.T) {
+	c := NewColor(0.9, 0.6, 0.80)
+
+	want := NewColor(2.25, 1.5, 2.0)
+	res := c.Times(2.5)
+
+	if !res.Equals(want) {
+		t.Errorf("Got %v, expected %v", res, want)
+	}
+}
+
+func TestBlendColors(t *testing.T) {
+	c := NewColor(1, 2, 3)
+	c2 := NewColor(3, 2, 1)
+
+	want := NewColor(3, 4, 3)
+	res := c.Blend(c2)
+
+	if !res.Equals(want) {
+		t.Errorf("Got %v, expected %v", res, want)
+	}
+}
+
+func TestNewCanvas(t *testing.T) {
+	c := NewCanvas(10, 20)
+	defaultColor := NewColor(0, 0, 0)
+
+	for i := 0; i < 20; i++ {
+		for j := 0; j < 10; j++ {
+			if !c[i][j].Equals(defaultColor) {
+				t.Errorf("Got %v, expected %v", c[i][j], defaultColor)
+			}
+		}
+	}
+}

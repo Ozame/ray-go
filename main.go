@@ -5,6 +5,5 @@ import (
 )
 
 func main() {
-	println("Here we go")
 	models.ShootCannon()
 }

@@ -2,8 +2,42 @@ package models
 
 import "math"
 
+// ======== Types =============
+
 type Tuple struct {
 	X, Y, Z, W float64
+}
+
+type Color struct {
+	red, green, blue float64
+}
+
+type Canvas [][]Color
+
+// ======= Utils ==============
+
+func equals(a, b float64) bool {
+	eps := 0.00001
+	return math.Abs(a-b) < eps
+}
+
+// ============================
+
+func NewCanvas(w, h int) Canvas {
+  var canvas [][]Color = make([][]Color, h)
+  defaultColor := NewColor(0,0,0)
+  for i := 0; i < h; i++ {
+    row := make([]Color, w)
+    for j := 0; j < w; j++ {
+      row[j] = defaultColor
+    }
+    canvas[i] = row
+  }
+  return canvas
+}
+
+func NewColor(red, green, blue float64) Color {
+	return Color{red, green, blue}
 }
 
 func NewPoint(x, y, z float64) Tuple {
@@ -12,6 +46,10 @@ func NewPoint(x, y, z float64) Tuple {
 
 func NewVector(x, y, z float64) Tuple {
 	return Tuple{x, y, z, 0.0}
+}
+
+func (t Tuple) Equals(b Tuple) bool {
+	return equals(t.X, b.X) && equals(t.Y, b.Y) && equals(t.Z, b.Z) // TODO: w as well ?
 }
 
 func Add(a, b Tuple) Tuple {
@@ -57,4 +95,24 @@ func Cross(a, b Tuple) Tuple {
 	return NewVector(a.Y*b.Z-a.Z*b.Y,
 		a.Z*b.X-a.X*b.Z,
 		a.X*b.Y-a.Y*b.X)
+}
+
+func (c Color) Equals(b Color) bool {
+	return equals(c.red, b.red) && equals(c.green, b.green) && equals(c.blue, b.blue)
+}
+
+func (c Color) Add(b Color) Color {
+	return Color{c.red + b.red, c.green + b.green, c.blue + b.blue}
+}
+
+func (c Color) Sub(b Color) Color {
+	return Color{c.red - b.red, c.green - b.green, c.blue - b.blue}
+}
+
+func (c Color) Times(x float64) Color {
+	return Color{c.red * x, c.green * x, c.blue * x}
+}
+
+func (c Color) Blend(b Color) Color {
+	return Color{c.red * b.red, c.green * b.green, c.blue * b.blue}
 }
