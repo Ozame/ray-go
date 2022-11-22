@@ -1,6 +1,10 @@
 package models
 
-import "math"
+import (
+	"fmt"
+	"math"
+	"strings"
+)
 
 // ======== Types =============
 
@@ -24,16 +28,63 @@ func equals(a, b float64) bool {
 // ============================
 
 func NewCanvas(w, h int) Canvas {
-  var canvas [][]Color = make([][]Color, h)
-  defaultColor := NewColor(0,0,0)
-  for i := 0; i < h; i++ {
-    row := make([]Color, w)
-    for j := 0; j < w; j++ {
-      row[j] = defaultColor
-    }
-    canvas[i] = row
-  }
-  return canvas
+	var canvas [][]Color = make([][]Color, h)
+	defaultColor := NewColor(0, 0, 0)
+	for i := 0; i < h; i++ {
+		row := make([]Color, w)
+		for j := 0; j < w; j++ {
+			row[j] = defaultColor
+		}
+		canvas[i] = row
+	}
+	return canvas
+}
+
+func (c *Canvas) Get(x, y int64) Color {
+	canvas := *c
+	return canvas[y][x]
+}
+
+func (c *Canvas) WritePixel(x, y int64, color Color) {
+	canvas := *c
+	canvas[y][x] = color
+}
+
+func (c *Canvas) GetWidthAndHeight() (int, int) {
+	canvas := *c
+	return len(canvas[0]), len(canvas)
+}
+
+func (c *Canvas) toPPM() string {
+	minValue := 0.0
+	maxValue := 255.0
+	canvas := *c
+	content := strings.Builder{}
+
+	w, h := c.GetWidthAndHeight()
+	header := fmt.Sprintf("P3\n%d %d\n255\n", w, h)
+	content.WriteString(header)
+
+	for _, row := range canvas {
+		sb := strings.Builder{}
+		for _, pixel := range row {
+			r := scale(minValue, maxValue, pixel.red)
+			g := scale(minValue, maxValue, pixel.green)
+			b := scale(minValue, maxValue, pixel.blue)
+			sb.WriteString(fmt.Sprintf("%f %f %f ", r, g, b))
+		}
+		s := strings.TrimSuffix(sb.String(), " ")
+		content.WriteString(s)
+		content.WriteString("\n")
+
+	}
+
+	return content.String()
+}
+
+func scale(min, max, value float64) float64 {
+	// TODO: Implement scaling
+	return 0
 }
 
 func NewColor(red, green, blue float64) Color {

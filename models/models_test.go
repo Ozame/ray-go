@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -273,4 +274,48 @@ func TestNewCanvas(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestCanvasWidthAndHeight(t *testing.T) {
+	c := NewCanvas(2, 5)
+	w, h := c.GetWidthAndHeight()
+	if w != 2 || h != 5 {
+		t.Errorf("Got %d, %d, %d, %d", w, h, 2, 5)
+	}
+}
+
+func TestWriteAndGetPixel(t *testing.T) {
+	canvas := NewCanvas(4, 3)
+	red := NewColor(1, 0, 0)
+	canvas.WritePixel(3, 2, red)
+	coloredPixel := canvas.Get(3, 2)
+	if coloredPixel != red {
+		t.Errorf("Got %v, expected %v", coloredPixel, red)
+	}
+
+}
+
+func TestCanvasToPPM(t *testing.T) {
+	canvas := NewCanvas(5, 3)
+	c1 := NewColor(1.5, 0, 0)
+	c2 := NewColor(0, 0.5, 0)
+	c3 := NewColor(-0.5, 0, 1)
+	canvas.WritePixel(0, 0, c1)
+	canvas.WritePixel(2, 1, c2)
+	canvas.WritePixel(4, 2, c3)
+
+	ppm := canvas.toPPM()
+	lines := strings.Split(ppm, "\n")
+
+	if lines[0] != "P3" || lines[1] != "5 3" || lines[2] != "255" {
+		t.Errorf("Header incorrect, got %v", lines)
+	}
+
+	// expectedLine4 := "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+	// expectedLine5 := "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"
+	// expectedLine6 := "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255" // This is wrong!
+	// if lines[3] != expectedLine4 || lines[4] != expectedLine5 || lines[5] != expectedLine6 {
+	// 	t.Errorf("Content incorrect, got \n%v", ppm)
+	// }
+
 }
