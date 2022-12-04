@@ -304,18 +304,52 @@ func TestCanvasToPPM(t *testing.T) {
 	canvas.WritePixel(2, 1, c2)
 	canvas.WritePixel(4, 2, c3)
 
-	ppm := canvas.toPPM()
+	ppm := canvas.ToPPM()
 	lines := strings.Split(ppm, "\n")
 
 	if lines[0] != "P3" || lines[1] != "5 3" || lines[2] != "255" {
 		t.Errorf("Header incorrect, got %v", lines)
 	}
 
-	// expectedLine4 := "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
-	// expectedLine5 := "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"
-	// expectedLine6 := "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255" // This is wrong!
-	// if lines[3] != expectedLine4 || lines[4] != expectedLine5 || lines[5] != expectedLine6 {
-	// 	t.Errorf("Content incorrect, got \n%v", ppm)
-	// }
+	expectedLine4 := "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+	expectedLine5 := "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"
+	expectedLine6 := "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"
+	if lines[3] != expectedLine4 || lines[4] != expectedLine5 || lines[5] != expectedLine6 {
+		t.Errorf("Content incorrect, got \n%v", ppm)
+	}
+
+}
+
+func TestPpmLineLength(t *testing.T) {
+	c := NewCanvas(10, 2)
+	color := NewColor(1, 0.8, 0.6)
+	c.SetEveryPixel(color)
+
+	ppm := c.ToPPM()
+	lines := strings.Split(ppm, "\n")
+
+	expectedLine4 := "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
+	expectedLine5 := "153 255 204 153 255 204 153 255 204 153 255 204 153"
+	expectedLine6 := "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
+	expectedLine7 := "153 255 204 153 255 204 153 255 204 153 255 204 153"
+	if lines[3] != expectedLine4 {
+		t.Errorf("Line incorrect, got \n%v, expected \n%v", lines[3], expectedLine4)
+	}
+
+	if lines[4] != expectedLine5 {
+		t.Errorf("Line incorrect, got \n%v, expected \n%v", lines[4], expectedLine5)
+	}
+
+	if lines[5] != expectedLine6 {
+		t.Errorf("Line incorrect, got \n%v, expected \n%v", lines[5], expectedLine6)
+	}
+
+	if lines[6] != expectedLine7 {
+		t.Errorf("Line incorrect, got \n%v, expected \n%v", lines[6], expectedLine7)
+	}
+
+	if lines[7] != "" {
+		t.Errorf("File should end in a newline, got %v", lines[6])
+	}
 
 }

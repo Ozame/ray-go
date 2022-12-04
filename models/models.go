@@ -40,6 +40,16 @@ func NewCanvas(w, h int) Canvas {
 	return canvas
 }
 
+func (c *Canvas) SetEveryPixel(color Color) {
+	canvas := *c
+	x, y := c.GetWidthAndHeight()
+	for i := 0; i < y; i++ {
+		for j := 0; j < x; j++ {
+			canvas[i][j] = color
+		}
+	}
+}
+
 func (c *Canvas) Get(x, y int64) Color {
 	canvas := *c
 	return canvas[y][x]
@@ -55,36 +65,68 @@ func (c *Canvas) GetWidthAndHeight() (int, int) {
 	return len(canvas[0]), len(canvas)
 }
 
-func (c *Canvas) toPPM() string {
-	minValue := 0.0
-	maxValue := 255.0
+func (c *Canvas) ToPPM() string {
 	canvas := *c
 	content := strings.Builder{}
+	lineMaxLen := 70
 
 	w, h := c.GetWidthAndHeight()
 	header := fmt.Sprintf("P3\n%d %d\n255\n", w, h)
 	content.WriteString(header)
 
+	// TODO: Fix this ugliest piece of code ever
 	for _, row := range canvas {
 		sb := strings.Builder{}
+		lineLength := 0
 		for _, pixel := range row {
-			r := scale(minValue, maxValue, pixel.red)
-			g := scale(minValue, maxValue, pixel.green)
-			b := scale(minValue, maxValue, pixel.blue)
-			sb.WriteString(fmt.Sprintf("%f %f %f ", r, g, b))
+			r := scale(pixel.red)
+			rStr := fmt.Sprintf("%d ", r)
+			if lineMaxLen-1 < len(rStr)+lineLength {
+				content.WriteString(strings.TrimSuffix(sb.String(), " "))
+				content.WriteString("\n")
+				sb.Reset()
+				lineLength = 0
+			}
+			lineLength = lineLength + len(rStr)
+			sb.WriteString(rStr)
+			g := scale(pixel.green)
+			gStr := fmt.Sprintf("%d ", g)
+			if lineMaxLen-1 < len(gStr)+lineLength {
+				content.WriteString(strings.TrimSuffix(sb.String(), " "))
+				content.WriteString("\n")
+				sb.Reset()
+				lineLength = 0
+			}
+			sb.WriteString(gStr)
+			lineLength = lineLength + len(gStr)
+			b := scale(pixel.blue)
+			bStr := fmt.Sprintf("%d ", b)
+			if lineMaxLen-1 < len(bStr)+lineLength {
+				content.WriteString(strings.TrimSuffix(sb.String(), " "))
+				content.WriteString("\n")
+				sb.Reset()
+				lineLength = 0
+			}
+			sb.WriteString(bStr)
+			lineLength = lineLength + len(bStr)
 		}
 		s := strings.TrimSuffix(sb.String(), " ")
 		content.WriteString(s)
 		content.WriteString("\n")
+		lineLength = 0
 
 	}
-
+	content.WriteString("\n")
 	return content.String()
 }
 
-func scale(min, max, value float64) float64 {
-	// TODO: Implement scaling
-	return 0
+func scale(value float64) int64 {
+	// Assuming the value given is between 0..1
+	if value < 0.0 {
+		return 0.0
+	}
+	scaled := math.Ceil(value * 255.0)
+	return int64(math.Min(scaled, 255.0))
 }
 
 func NewColor(red, green, blue float64) Color {
