@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	models.ShootCannon()
+	models.ShootCannonAndDraw()
 }
