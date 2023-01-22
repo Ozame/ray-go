@@ -18,6 +18,8 @@ type Color struct {
 
 type Canvas [][]Color
 
+type Matrix [][]float64
+
 // ======= Utils ==============
 
 func equals(a, b float64) bool {
@@ -208,4 +210,15 @@ func (c Color) Times(x float64) Color {
 
 func (c Color) Blend(b Color) Color {
 	return Color{c.red * b.red, c.green * b.green, c.blue * b.blue}
+}
+
+func (a Matrix) Equals(b Matrix) bool {
+	for i, row := range a {
+		for j := range row {
+			if !(equals(a[i][j], b[i][j])) {
+				return false
+			}
+		}
+	}
+	return true
 }

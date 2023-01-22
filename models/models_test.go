@@ -353,3 +353,34 @@ func TestPpmLineLength(t *testing.T) {
 	}
 
 }
+
+func TestNewMatrix(t *testing.T) {
+	m := Matrix{{1.0, 2.0, 3.0, 4.0}, {5.5, 6.5, 7.5, 8.5}, {9, 10, 11, 12}, {13.5, 14.5, 15.5, 16.5}}
+
+	if m[0][0] != 1.0 {
+		t.Errorf("Expected %f, got %f", 1.0, m[0][0])
+	}
+	if m[3][0] != 13.5 {
+		t.Errorf("Expected %f, got %f", 13.5, m[3][0])
+	}
+}
+
+func TestMatrixEquals(t *testing.T) {
+	a := Matrix{{1.2, 10}, {1.2, 10}}
+	b := Matrix{{1.2, 10}, {1.20000000001, 10}}
+
+	if a.Equals(b) != true {
+		t.Errorf("Expected true, got false")
+	}
+
+	c := Matrix{{2.2, 10}, {1.20000000001, 10}}
+	if a.Equals(c) != false {
+		t.Errorf("Different matrixes should not be equal")
+	}
+
+	d := Matrix{{1.2, 10}, {4, 4, 5}, {12, 3}, {1, 2, 3, 4, 40}}
+	if d.Equals(Matrix{{140}}) != false {
+		t.Errorf("Different sized matrixes should not be equal")
+	}
+
+}
